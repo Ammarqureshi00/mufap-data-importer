@@ -155,9 +155,12 @@
                                           @endforeach
                                     </select>
                               </div>
-
-                              <div class="col-md-2">
-                                    <input type="date" name="date" class="form-control" value="{{request('date')}}">
+                              <div class="col-md-3">
+                                    <div class="input-group">
+                                          <input type="text" name="date_range" id="date_range" class="form-control"
+                                                value="{{ request('date_range') }}" placeholder="Select date range">
+                                          <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                    </div>
                               </div>
 
                               <div class="col-md-2">
@@ -234,6 +237,25 @@
 
       {{-- Bootstrap JS --}}
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+      <script>
+            $(function () {
+                $('#date_range').daterangepicker({
+                    autoUpdateInput: false,
+                    locale: {
+                        cancelLabel: 'Clear',
+                        format: 'YYYY-MM-DD'
+                    }
+                });
+            
+                $('#date_range').on('apply.daterangepicker', function(ev, picker) {
+                    $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+                });
+            
+                $('#date_range').on('cancel.daterangepicker', function(ev, picker) {
+                    $(this).val('');
+                });
+            });
+      </script>
 </body>
 
 </html>
