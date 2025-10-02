@@ -104,9 +104,9 @@ class MufapDataController extends Controller
     {
         // 1. Prepare filter data
         $allFetchData = [
-            'amcs'      => Amc::orderBy('name')->get(),
-            'sectors'   => Sector::orderBy('name')->get(),
-            'fundsList' => MutualFunds::orderBy('name')->get(),
+            'amcs'       => Amc::orderBy('name')->get(),
+            'sectors'    => Sector::orderBy('name')->get(),
+            'fundsList'  => MutualFunds::orderBy('name')->get(),
             'categories' => Category::orderBy('name')->get(),
         ];
 
@@ -118,7 +118,18 @@ class MufapDataController extends Controller
         if ($request->filled('amc'))      $fundsQuery->where('amc_id', $request->amc);
         if ($request->filled('sector'))   $fundsQuery->where('sector_id', $request->sector);
         if ($request->filled('funds'))    $fundsQuery->where('mutual_fund_id', $request->funds);
-        if ($request->filled('date'))     $fundsQuery->where('validity_date', $request->date);
+
+        // ✅ Handle Date Filter (single date or date range)
+        if ($request->filled('from_date') && $request->filled('to_date')) {
+            $fundsQuery->whereBetween('validity_date', [
+                $request->from_date,
+                $request->to_date
+            ]);
+        } elseif ($request->filled('from_date')) {
+            $fundsQuery->where('validity_date', '>=', $request->from_date);
+        } elseif ($request->filled('to_date')) {
+            $fundsQuery->where('validity_date', '<=', $request->to_date);
+        }
 
         // 4. Paginate results
         $funds = $fundsQuery->orderBy('id', 'desc')
@@ -131,6 +142,7 @@ class MufapDataController extends Controller
             'allFetchData' => $allFetchData
         ]);
     }
+
 
 
     private function parseDate($date)

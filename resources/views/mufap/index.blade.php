@@ -7,6 +7,9 @@
       <title>MUFAP Data</title>
       <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
       <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+      <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
       <style>
             body {
                   background-color: #1e1e1e;
@@ -156,11 +159,15 @@
                                     </select>
                               </div>
                               <div class="col-md-3">
-                                    <div class="input-group">
-                                          <input type="text" name="date_range" id="date_range" class="form-control"
-                                                value="{{ request('date_range') }}" placeholder="Select date range">
-                                          <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
-                                    </div>
+                                    <label for="from_date" class="form-label">From :</label>
+                                    <input type="text" name="from_date" id="from_date" class="form-control"
+                                          value="{{ request('from_date') }}" placeholder="YYYY-MM-DD">
+                              </div>
+
+                              <div class="col-md-3">
+                                    <label for="to_date" class="form-label">To :</label>
+                                    <input type="text" name="to_date" id="to_date" class="form-control"
+                                          value="{{ request('to_date') }}" placeholder="YYYY-MM-DD">
                               </div>
 
                               <div class="col-md-2">
@@ -236,25 +243,35 @@
       </div>
 
       {{-- Bootstrap JS --}}
+      <!-- Bootstrap JS -->
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+      <!-- jQuery -->
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+      <!-- Moment.js -->
+      <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+
+      <!-- DateRangePicker -->
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js">
+      </script>
+
       <script>
             $(function () {
-                $('#date_range').daterangepicker({
-                    autoUpdateInput: false,
-                    locale: {
-                        cancelLabel: 'Clear',
-                        format: 'YYYY-MM-DD'
-                    }
-                });
-            
-                $('#date_range').on('apply.daterangepicker', function(ev, picker) {
-                    $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
-                });
-            
-                $('#date_range').on('cancel.daterangepicker', function(ev, picker) {
-                    $(this).val('');
-                });
-            });
+      $('#from_date').datepicker({
+      format: 'yyyy-mm-dd',
+      autoclose: true,
+      todayHighlight: true
+      });
+      
+      $('#to_date').datepicker({
+      format: 'yyyy-mm-dd',
+      autoclose: true,
+      todayHighlight: true
+      });
+      });
+
       </script>
 </body>
 
