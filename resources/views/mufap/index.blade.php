@@ -7,6 +7,7 @@
       <title>MUFAP Data</title>
       <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
       <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
       <link rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
@@ -62,6 +63,10 @@
                   background-color: #555;
                   border-color: #666;
             }
+
+            .form-label {
+                  color: #ddd;
+            }
       </style>
 </head>
 
@@ -110,68 +115,91 @@
             {{-- Filter Form --}}
             <div class="card shadow-sm mb-4">
                   <div class="card-body">
-                        <form method="GET" action="{{ route('mufap.index') }}" class="row g-2 mb-3">
-                              <div class="col-md-2">
-                                    <select name="amc" class="form-select">
-                                          <option value="">All AMCs</option>
-                                          @foreach($allFetchData['amcs'] as $amc)
-                                          <option value="{{ $amc->id }}" {{ request('amc')==$amc->id ? 'selected' : ''
-                                                }}>
-                                                {{ $amc->name }}
-                                          </option>
-                                          @endforeach
-                                    </select>
-                              </div>
+                        <form method="GET" action="{{ route('mufap.index') }}">
+                              <div class="row g-3 align-items-end">
 
-                              <div class="col-md-2">
-                                    <select name="sector" class="form-select">
-                                          <option value="">All Sectors</option>
-                                          @foreach($allFetchData['sectors'] as $sector)
-                                          <option value="{{ $sector->id }}" {{ request('sector')==$sector->id ?
-                                                'selected' : '' }}>
-                                                {{ $sector->name }}
-                                          </option>
-                                          @endforeach
-                                    </select>
-                              </div>
+                                    {{-- AMC --}}
+                                    <div class="col-md-2">
+                                          <label class="form-label">AMC</label>
+                                          <select name="amc" class="form-select">
+                                                <option value="">All</option>
+                                                @foreach($allFetchData['amcs'] as $amc)
+                                                <option value="{{ $amc->id }}" {{ request('amc')==$amc->id ? 'selected'
+                                                      : '' }}>
+                                                      {{ $amc->name }}
+                                                </option>
+                                                @endforeach
+                                          </select>
+                                    </div>
 
-                              <div class="col-md-2">
-                                    <select name="funds" class="form-select">
-                                          <option value="">All Funds</option>
-                                          @foreach($allFetchData['fundsList'] as $fund)
-                                          <option value="{{ $fund->id }}" {{ request('funds')==$fund->id ? 'selected' :
-                                                '' }}>
-                                                {{ $fund->name }}
-                                          </option>
-                                          @endforeach
-                                    </select>
-                              </div>
+                                    {{-- Sector --}}
+                                    <div class="col-md-2">
+                                          <label class="form-label">Sector</label>
+                                          <select name="sector" class="form-select">
+                                                <option value="">All</option>
+                                                @foreach($allFetchData['sectors'] as $sector)
+                                                <option value="{{ $sector->id }}" {{ request('sector')==$sector->id ?
+                                                      'selected' :
+                                                      '' }}>
+                                                      {{ $sector->name }}
+                                                </option>
+                                                @endforeach
+                                          </select>
+                                    </div>
 
-                              <div class="col-md-2">
-                                    <select name="category" class="form-select">
-                                          <option value="">All Categories</option>
-                                          @foreach($allFetchData['categories'] as $cat)
-                                          <option value="{{ $cat->id }}" {{ request('category')==$cat->id ? 'selected' :
-                                                '' }}>
-                                                {{ $cat->name }}
-                                          </option>
-                                          @endforeach
-                                    </select>
-                              </div>
-                              <div class="col-md-3">
-                                    <label for="from_date" class="form-label">From :</label>
-                                    <input type="text" name="from_date" id="from_date" class="form-control"
-                                          value="{{ request('from_date') }}" placeholder="YYYY-MM-DD">
-                              </div>
+                                    {{-- Funds --}}
+                                    <div class="col-md-2">
+                                          <label class="form-label">Funds</label>
+                                          <select name="funds" class="form-select">
+                                                <option value="">All</option>
+                                                @foreach($allFetchData['fundsList'] as $fund)
+                                                <option value="{{ $fund->id }}" {{ request('funds')==$fund->id ?
+                                                      'selected' : '' }}>
+                                                      {{ $fund->name }}
+                                                </option>
+                                                @endforeach
+                                          </select>
+                                    </div>
 
-                              <div class="col-md-3">
-                                    <label for="to_date" class="form-label">To :</label>
-                                    <input type="text" name="to_date" id="to_date" class="form-control"
-                                          value="{{ request('to_date') }}" placeholder="YYYY-MM-DD">
-                              </div>
+                                    {{-- Category --}}
+                                    <div class="col-md-2">
+                                          <label class="form-label">Category</label>
+                                          <select name="category" class="form-select">
+                                                <option value="">All</option>
+                                                @foreach($allFetchData['categories'] as $cat)
+                                                <option value="{{ $cat->id }}" {{ request('category')==$cat->id ?
+                                                      'selected' : ''
+                                                      }}>
+                                                      {{ $cat->name }}
+                                                </option>
+                                                @endforeach
+                                          </select>
+                                    </div>
 
-                              <div class="col-md-2">
-                                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                                    {{-- From Date --}}
+                                    <div class="col-md-2">
+                                          <label class="form-label">From</label>
+                                          <input type="text" name="from_date" id="from_date" class="form-control"
+                                                value="{{ request('from_date') }}" placeholder="YYYY-MM-DD">
+                                    </div>
+
+                                    {{-- To Date --}}
+                                    <div class="col-md-2">
+                                          <label class="form-label">To</label>
+                                          <input type="text" name="to_date" id="to_date" class="form-control"
+                                                value="{{ request('to_date') }}" placeholder="YYYY-MM-DD">
+                                    </div>
+
+                                    {{-- Buttons --}}
+                                    <div class="col-md-2">
+                                          <button type="submit" class="btn btn-primary w-100 mb-2">
+                                                <i class="fas fa-search"></i> Search
+                                          </button>
+                                          <a href="{{ route('mufap.index') }}" class="btn btn-outline-secondary w-100">
+                                                Reset
+                                          </a>
+                                    </div>
+
                               </div>
                         </form>
                   </div>
