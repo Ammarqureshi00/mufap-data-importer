@@ -5,8 +5,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\MufapApiController;
 
 // Public Routes
-Route::post('/register', [AuthController::class, 'register']); // User signup
-Route::post('/login', [AuthController::class, 'login']); // User login
+Route::post('register', [AuthController::class, 'register']); // User signup
+Route::post('login', [AuthController::class, 'login']); // User login
 
 // Protected Routes (need Sanctum token)
 Route::middleware('auth:sanctum')->group(function () {
