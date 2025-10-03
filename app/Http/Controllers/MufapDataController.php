@@ -143,8 +143,6 @@ class MufapDataController extends Controller
         ]);
     }
 
-
-
     private function parseDate($date)
     {
         if (!$date) return now()->format('Y-m-d'); // fallback default
