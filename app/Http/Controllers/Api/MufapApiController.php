@@ -136,4 +136,16 @@ class MufapApiController extends Controller
             'data' => $data
         ]);
     }
+    // filter by category
+    public function filterByCategory($categoryId)
+    {
+        $data = Mf_Daily_Stats::with(['sector', 'amc', 'mutualFund', 'trustee'])
+            ->where('category_id', $categoryId)
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $data
+        ]);
+    }
 }
