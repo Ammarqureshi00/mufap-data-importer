@@ -3,16 +3,34 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Amc;
+use App\Models\Category;
 use App\Models\Mf_Daily_Stats;
+use App\Models\Sector;
 use Illuminate\Http\Request;
+
 
 
 class MufapApiController extends Controller
 {
     // Get all Mutual Funds with relations
-    public function index()
+    public function index(Request $request)
     {
-        $data = Mf_Daily_Stats::with(['sector', 'amc', 'mutualFund', 'trustee'])->get();
+        $perPage = $request->get('per_page', 10);
+
+        $data = Mf_Daily_Stats::with(['sector', 'amc', 'mutualFund', 'trustee', 'category'])
+            ->orderBy('id', 'ASC')
+            ->paginate($perPage);
+
+        $data->getCollection()->transform(function ($item) {
+            if (!empty($item->validity_date)) {
+                $item->validity_date = \Carbon\Carbon::parse($item->validity_date)->format('d-M-Y');
+            }
+            if (!empty($item->inception_date)) {
+                $item->inception_date = \Carbon\Carbon::parse($item->inception_date)->format('d-M-Y');
+            }
+            return $item;
+        });
 
         return response()->json([
             'status' => 'success',
@@ -20,13 +38,18 @@ class MufapApiController extends Controller
         ]);
     }
 
+
+
     // Get single Mutual Fund record by ID
     public function show($id)
     {
         $record = Mf_Daily_Stats::with(['sector', 'amc', 'mutualFund', 'trustee'])->find($id);
 
         if (!$record) {
-            return response()->json(['status' => 'error', 'message' => 'Record not found'], 404);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Record not found'
+            ], 404);
         }
 
         return response()->json([
@@ -34,7 +57,6 @@ class MufapApiController extends Controller
             'data' => $record
         ]);
     }
-
     // Store new record
     public function store(Request $request)
     {
@@ -98,11 +120,47 @@ class MufapApiController extends Controller
         ]);
     }
 
-    // Filter by AMC
-    public function filterByAMC($amcId)
+    /**
+     * ✅ Get all AMCs (with related funds count)
+     */
+    public function getAllAMCs()
     {
-        $data = Mf_Daily_Stats::with(['sector', 'amc', 'mutualFund', 'trustee'])
-            ->where('amc_id', $amcId)
+        $data = Amc::withCount('mfDailyStats') // counts related funds
+            ->select('id', 'name')
+            ->orderBy('name', 'ASC')
+            ->get();
+
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $data
+        ]);
+    }
+
+    /**
+     * ✅ Get all Categories (with related funds count)
+     */
+    public function getAllCategories()
+    {
+        $data = Category::withCount('mfDailyStats')
+            ->select('id', 'name')
+            ->orderBy('name', 'ASC')
+            ->get();
+        // dd($data);
+        return response()->json([
+            'status' => 'success',
+            'data' => $data
+        ]);
+    }
+
+    /**
+     * ✅ Get all Sectors (with related funds count)
+     */
+    public function getAllSectors()
+    {
+        $data = Sector::withCount('mfDailyStats')
+            ->select('id', 'name')
+            ->orderBy('name', 'ASC')
             ->get();
 
         return response()->json([
@@ -111,41 +169,36 @@ class MufapApiController extends Controller
         ]);
     }
 
-    // Filter by Sector
-    public function filterBySector($sectorId)
+    /**
+     * ✅ Optional: Get AMC + Sector + Category together (for frontend filters)
+     */
+    public function getAllFilters()
     {
-        $data = Mf_Daily_Stats::with(['sector', 'amc', 'mutualFund', 'trustee'])
-            ->where('sector_id', $sectorId)
-            ->get();
-
         return response()->json([
             'status' => 'success',
-            'data' => $data
+            'data' => [
+                'amcs' => Amc::select('id', 'name')->orderBy('name')->get(),
+                'sectors' => Sector::select('id', 'name')->orderBy('name')->get(),
+                'categories' => Category::select('id', 'name')->orderBy('name')->get(),
+            ]
         ]);
     }
-
     // Filter by Date
-    public function filterByDate($date)
-    {
-        $data = Mf_Daily_Stats::with(['sector', 'amc', 'mutualFund', 'trustee'])
-            ->where('validity_date', $date)
-            ->get();
+    // public function filterByDate(Request $request)
+    // {
+    //     $date = $request->query('date');
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $data
-        ]);
-    }
-    // filter by category
-    public function filterByCategory($categoryId)
-    {
-        $data = Mf_Daily_Stats::with(['sector', 'amc', 'mutualFund', 'trustee'])
-            ->where('category_id', $categoryId)
-            ->get();
+    //     $query = Mf_Daily_Stats::with(['sector', 'amc', 'mutualFund', 'trustee']);
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $data
-        ]);
-    }
+    //     if ($date) {
+    //         $query->whereDate('validity_date', $date);
+    //     }
+
+    //     $data = $query->get();
+
+    //     return response()->json([
+    //         'status' => 'success',
+    //         'data' => $data
+    //     ]);
+    // }
 }

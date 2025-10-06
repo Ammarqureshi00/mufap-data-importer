@@ -132,7 +132,7 @@ class MufapDataController extends Controller
         }
 
         // 4. Paginate results
-        $funds = $fundsQuery->orderBy('id', 'desc')
+        $funds = $fundsQuery->orderBy('id', 'ASC')
             ->paginate($request->get('paged', 15))
             ->withQueryString();
 
@@ -145,7 +145,7 @@ class MufapDataController extends Controller
 
     private function parseDate($date)
     {
-        if (!$date) return now()->format('Y-m-d'); // fallback default
+        if (!$date) return null; // fallback default
 
         $formats = ['M d, Y', 'd-M-Y', 'Y-m-d'];
         foreach ($formats as $format) {
@@ -154,7 +154,7 @@ class MufapDataController extends Controller
                 return $parsed->format('Y-m-d');
             }
         }
-        return now()->format('Y-m-d'); // fallback if no format matched
+        return null; // fallback if no format matched
     }
 
 

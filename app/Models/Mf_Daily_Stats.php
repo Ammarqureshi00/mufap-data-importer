@@ -29,8 +29,8 @@ class Mf_Daily_Stats extends Model
     ];
 
     protected $casts = [
-        'inception_date' => 'date',
-        'validity_date'  => 'date',
+        'validity_date'  => 'date:Y-m-d',    // will be serialized as "2025-10-01"
+        'inception_date' => 'date:Y-m-d',
         'offer'          => 'decimal:4',
         'repurchase'     => 'decimal:4',
         'nav'            => 'decimal:4',

@@ -231,31 +231,11 @@
                                                 <th>Trustee</th>
                                           </tr>
                                     </thead>
-                                    <tbody class="text-center">
-                                          @forelse($funds as $fund)
+                                    <tbody id="funds-table" class="text-center">
                                           <tr>
-                                                <td>{{ $fund->sector->name ?? '' }}</td>
-                                                <td>{{ $fund->amc->name ?? '' }}</td>
-                                                <td>{{ $fund->mutualFund->name ?? '' }}</td>
-                                                <td>{{ $fund->category->name ?? '' }}</td>
-                                                <td>{{ $fund->inception_date }}</td>
-                                                <td>{{ $fund->offer }}</td>
-                                                <td>{{ $fund->repurchase }}</td>
-                                                <td>{{ $fund->nav }}</td>
-                                                <td>{{ $fund->validity_date }}</td>
-                                                <td>{{ $fund->front_end }}</td>
-                                                <td>{{ $fund->back_end }}</td>
-                                                <td>{{ $fund->contingent }}</td>
-                                                <td>{{ $fund->market }}</td>
-                                                <td>{{ $fund->trustee->name ?? 'Null' }}</td>
-                                          </tr>
-                                          @empty
-                                          <tr>
-                                                <td colspan="14" class="text-center text-muted py-4">
-                                                      No data found 📭
+                                                <td colspan="14" class="text-center text-muted py-4">Loading data...
                                                 </td>
                                           </tr>
-                                          @endforelse
                                     </tbody>
                               </table>
                         </div>
@@ -269,8 +249,9 @@
                   </div>
             </div>
       </div>
+      {{-- Custom JS for handling data fetch and display --}}
+      <script src="{{ asset('js/script.js') }}"></script>
 
-      {{-- Bootstrap JS --}}
       <!-- Bootstrap JS -->
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -284,22 +265,21 @@
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
       <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js">
       </script>
-
       <script>
+            // Datepicker Initialization
             $(function () {
-      $('#from_date').datepicker({
-      format: 'yyyy-mm-dd',
-      autoclose: true,
-      todayHighlight: true
-      });
-      
-      $('#to_date').datepicker({
-      format: 'yyyy-mm-dd',
-      autoclose: true,
-      todayHighlight: true
-      });
-      });
-
+            $('#from_date').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            todayHighlight: true
+            });
+            
+            $('#to_date').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            todayHighlight: true
+            });
+            });
       </script>
 </body>
 

@@ -8,8 +8,8 @@ class Sector extends Model
 {
     protected $fillable = ['name'];
 
-    // public function dailyStats()
-    // {
-    //     return $this->hasMany(Mf_Daily_Stats::class);
-    // }
+    public function mfDailyStats()
+    {
+        return $this->hasMany(Mf_Daily_Stats::class);
+    }
 }

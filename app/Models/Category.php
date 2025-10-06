@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Category extends Model
 {
     protected $fillable = ['name'];
-    // public function mfDailyStats()
-    // // {
-    // //     return $this->hasMany(Mf_Daily_Stats::class);
-    // // }
+    public function mfDailyStats()
+    {
+        return $this->hasMany(Mf_Daily_Stats::class);
+    }
 }
