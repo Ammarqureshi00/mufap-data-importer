@@ -47,16 +47,19 @@ class MufapApiController extends Controller
 
         if (!$record) {
             return response()->json([
-                'status' => 'error',
-                'message' => 'Record not found'
-            ], 404);
+                'title'  => 'Service Temporarily Unavailable',
+                'detail' => 'The requested resource is currently unavailable. Please try again later.',
+                'status' => 503,
+                'type'   => 'https://mufap.example.com/api/errors/service-unavailable'
+            ], 503);
         }
 
         return response()->json([
             'status' => 'success',
             'data' => $record
-        ]);
+        ], 200);
     }
+
     // Store new record
     public function store(Request $request)
     {
@@ -146,7 +149,7 @@ class MufapApiController extends Controller
             ->select('id', 'name')
             ->orderBy('name', 'ASC')
             ->get();
-        // dd($data);
+        dd($data);
         return response()->json([
             'status' => 'success',
             'data' => $data
