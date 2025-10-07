@@ -14,8 +14,8 @@ class MutualFunds extends Model
         return $this->belongsTo(Amc::class);
     }
 
-    // public function dailyStats()
-    // {
-    //     return $this->hasMany(Mf_Daily_Stats::class);
-    // }
+    public function dailyStats()
+    {
+        return $this->hasMany(Mf_Daily_Stats::class);
+    }
 }

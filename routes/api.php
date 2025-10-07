@@ -11,13 +11,14 @@ Route::post('/logout', [AuthController::class, 'logout']); // Logout user
 
 // MUFAP Data
 Route::get('/mutualfunds', [MufapApiController::class, 'index']); // All funds
-Route::get('/mutualfunds/{id}', [MufapApiController::class, 'show']); // Single fundDelete fund
-
 // Extra APIs for Filtering / Searching
 
-Route::get('/mutualfunds/sectors', [MufapApiController::class, 'getAllSectors']);
-Route::get('/mutualfunds/amcs', [MufapApiController::class, 'getAllAMCs']);
-Route::get('/mutualfunds/categories', [MufapApiController::class, 'getAllCategories']);
+Route::get('mutualfunds/categories', [MufapApiController::class, 'getAllCategories']);
+Route::get('mutualfunds/sectors', [MufapApiController::class, 'getAllSectors']);
+Route::get('mutualfunds/amcs', [MufapApiController::class, 'getAllAMCs']);
+Route::get('mutualfunds/{id}', [MufapApiController::class, 'show']); // <-- this goes LAST
+
+
 
 
 // Route::get('/mutualfunds/date', [MufapApiController::class, 'filterByDate']);

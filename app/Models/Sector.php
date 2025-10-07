@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Sector extends Model
 {
     protected $fillable = ['name'];
+    protected $table = 'sectors';
 
     public function mfDailyStats()
     {
-        return $this->hasMany(Mf_Daily_Stats::class);
+        return $this->hasMany(Mf_Daily_Stats::class, 'sector_id');
     }
 }

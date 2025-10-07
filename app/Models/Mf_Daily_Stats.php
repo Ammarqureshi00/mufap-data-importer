@@ -4,6 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\MutualFunds;
+use App\Models\Amc;
+use App\Models\Sector;
+use App\Models\Trustee;
+use App\Models\Category;
+
 
 class Mf_Daily_Stats extends Model
 {

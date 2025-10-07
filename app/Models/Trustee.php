@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Trustee extends Model
 {
     protected $fillable = ['name'];
+    protected $table = 'trustees';
 
     // public function dailyStats()
     // {
