@@ -171,20 +171,6 @@ class MufapApiController extends Controller
             'data' => $data
         ]);
     }
-    /**
-     * ✅ Optional: Get AMC + Sector + Category together (for frontend filters)
-     */
-    // public function getAllFilters()
-    // {
-    //     return response()->json([
-    //         'status' => 'success',
-    //         'data' => [
-    //             'amcs' => Amc::select('id', 'name')->orderBy('name')->get(),
-    //             'sectors' => Sector::select('id', 'name')->orderBy('name')->get(),
-    //             'categories' => Category::select('id', 'name')->orderBy('name')->get(),
-    //         ]
-    //     ]);
-    // }
     // Filter by Date
     // public function filterByDate(Request $request)
     // {
