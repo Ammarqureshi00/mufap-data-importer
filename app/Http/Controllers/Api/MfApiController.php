@@ -5,20 +5,18 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Amc;
 use App\Models\Category;
-use App\Models\Mf_Daily_Stats;
+use App\Models\MfDailyStat;
 use App\Models\Sector;
 use Illuminate\Http\Request;
 
-
-
-class MufapApiController extends Controller
+class MfApiController extends Controller
 {
     // Get all Mutual Funds with relations
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
 
-        $data = Mf_Daily_Stats::with(['sector', 'amc', 'mutualFund', 'trustee', 'category'])
+        $data = MfDailyStat::with(['sector', 'amc', 'mutualFund', 'trustee', 'category'])
             ->orderBy('id', 'ASC')
             ->paginate($perPage);
 
@@ -43,7 +41,7 @@ class MufapApiController extends Controller
     // Get single Mutual Fund record by ID
     public function show($id)
     {
-        $record = Mf_Daily_Stats::with(['sector', 'amc', 'mutualFund', 'trustee'])->find($id);
+        $record = MfDailyStat::with(['sector', 'amc', 'mutualFund', 'trustee'])->find($id);
 
         if (!$record) {
             return response()->json([
@@ -73,7 +71,7 @@ class MufapApiController extends Controller
             'validity_date' => 'required|date',
         ]);
 
-        $record = Mf_Daily_Stats::create($request->all());
+        $record = MfDailyStat::create($request->all());
 
         return response()->json([
             'status' => 'success',
@@ -85,7 +83,7 @@ class MufapApiController extends Controller
     // Update record
     public function update(Request $request, $id)
     {
-        $record = Mf_Daily_Stats::find($id);
+        $record = MfDailyStat::find($id);
 
         if (!$record) {
             return response()->json(
@@ -109,7 +107,7 @@ class MufapApiController extends Controller
     // Delete record
     public function destroy($id)
     {
-        $record = Mf_Daily_Stats::find($id);
+        $record = MfDailyStat::find($id);
 
         if (!$record) {
             return response()->json(['status' => 'error', 'message' => 'Record not found'], 404);

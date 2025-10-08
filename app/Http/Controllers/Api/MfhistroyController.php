@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Mf_Daily_Stats;
+use App\Models\MfDailyStat;
 use Illuminate\Http\Request;
 
-class MufapDateRangeController extends Controller
+class MfhistoryController extends Controller
 {
-    public function getDateRange($id, Request $request)
+    public function gethistory($id, Request $request)
     {
         // Validate input
         $request->validate([
@@ -20,7 +20,7 @@ class MufapDateRangeController extends Controller
         $endDate   = $request->input('end_date');
 
         // Fetch data for date range
-        $dateRangeData = Mf_Daily_Stats::where('mutual_fund_id', $id)
+        $dateRangeData = MfDailyStat::where('mutual_fund_id', $id)
             ->whereBetween('validity_date', [$startDate, $endDate])
             ->orderBy('validity_date', 'asc')
             ->get(['validity_date as date', 'nav', 'offer', 'repurchase']);
@@ -28,10 +28,11 @@ class MufapDateRangeController extends Controller
         // Check if data exists
         if ($dateRangeData->isEmpty()) {
             return response()->json([
-                'title'   => 'No Data Found',
-                'status'  => 'error',
-                'message' => 'No data found for the given date range.'
-            ], 404);
+                'title'   => 'Data Records Unavailable',
+                'status'  => '503',
+                'message' => 'No data found for the given date range.',
+                'type'    => 'https://mufap.example.com/api/errors/service-unavailable'
+            ], 503);
         }
 
         // Calculate total days between range

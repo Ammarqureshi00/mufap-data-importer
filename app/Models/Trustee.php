@@ -11,6 +11,6 @@ class Trustee extends Model
 
     // public function dailyStats()
     // {
-    //     return $this->hasMany(Mf_Daily_Stats::class);
+    //     return $this->hasMany(MfDailyStat::class);
     // }
 }

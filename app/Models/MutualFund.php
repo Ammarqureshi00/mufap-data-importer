@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class MutualFunds extends Model
+class MutualFund extends Model
 {
     protected $fillable = ['name', 'amc_id'];
     protected $table = 'mutual_funds';
@@ -16,6 +16,6 @@ class MutualFunds extends Model
 
     public function dailyStats()
     {
-        return $this->hasMany(Mf_Daily_Stats::class);
+        return $this->hasMany(MfDailyStat::class);
     }
 }

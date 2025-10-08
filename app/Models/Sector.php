@@ -11,6 +11,6 @@ class Sector extends Model
 
     public function mfDailyStats()
     {
-        return $this->hasMany(Mf_Daily_Stats::class, 'sector_id');
+        return $this->hasMany(MfDailyStat::class, 'sector_id');
     }
 }
