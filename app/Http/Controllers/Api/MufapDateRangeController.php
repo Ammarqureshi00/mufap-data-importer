@@ -23,7 +23,7 @@ class MufapDateRangeController extends Controller
         $dateRangeData = Mf_Daily_Stats::where('mutual_fund_id', $id)
             ->whereBetween('validity_date', [$startDate, $endDate])
             ->orderBy('validity_date', 'asc')
-            ->get(['validity_date as date', 'nav', 'offer', 'repurchase', 'market']);
+            ->get(['validity_date as date', 'nav', 'offer', 'repurchase']);
 
         // Check if data exists
         if ($dateRangeData->isEmpty()) {
