@@ -11,11 +11,11 @@ class Category extends Model
 
     public function mfDailyStats()
     {
-        return $this->hasMany(Mf_Daily_Stats::class, 'category_id');
+        return $this->hasMany(MfDailyStat::class, 'category_id');
     }
 
     public function mutualFunds()
     {
-        return $this->hasMany(MutualFunds::class, 'category_id');
+        return $this->hasMany(MutualFund::class, 'category_id');
     }
 }

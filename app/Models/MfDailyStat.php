@@ -4,14 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\MutualFunds;
+use App\Models\MutualFund;
 use App\Models\Amc;
 use App\Models\Sector;
 use App\Models\Trustee;
 use App\Models\Category;
 
 
-class Mf_Daily_Stats extends Model
+class MfDailyStat extends Model
 {
     use HasFactory;
 
@@ -52,7 +52,7 @@ class Mf_Daily_Stats extends Model
 
     public function mutualFund()
     {
-        return $this->belongsTo(MutualFunds::class, 'mutual_fund_id', 'id');
+        return $this->belongsTo(MutualFund::class, 'mutual_fund_id', 'id');
     }
 
     public function amc()

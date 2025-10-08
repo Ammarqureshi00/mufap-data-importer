@@ -4,14 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Amc;
 use App\Models\Category;
-use App\Models\MutualFunds;
-use App\Models\Mf_Daily_Stats;
+use App\Models\MutualFund;
+use App\Models\MfDailyStat;
 use App\Models\Sector;
 use App\Models\Trustee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class MufapDataController extends Controller
+class MfCsvDataController extends Controller
 {
     public function uploadCsv(Request $request)
     {
@@ -44,7 +44,7 @@ class MufapDataController extends Controller
                 $amc = Amc::firstOrCreate(['name' => $amcName]);
 
                 // Mutual Fund
-                $mutualFund = MutualFunds::firstOrCreate([
+                $mutualFund = MutualFund::firstOrCreate([
                     'name' => $fundName,
                     'amc_id' => $amc->id
                 ]);
@@ -63,7 +63,7 @@ class MufapDataController extends Controller
                 $trustee = $trusteeName ? Trustee::firstOrCreate(['name' => $trusteeName]) : null;
 
                 // Skip duplicates
-                if (Mf_Daily_Stats::where('mutual_fund_id', $mutualFund->id)
+                if (MfDailyStat::where('mutual_fund_id', $mutualFund->id)
                     ->where('category_id', $category?->id)
                     ->where('validity_date', $validity_date ?? null)
                     ->where('nav', $nav ?? null)
@@ -74,7 +74,7 @@ class MufapDataController extends Controller
                 }
 
                 // Insert record
-                Mf_Daily_Stats::create([
+                MfDailyStat::create([
                     'mutual_fund_id' => $mutualFund->id,
                     'amc_id'         => $amc->id,
                     'sector_id'      => $sector?->id,
@@ -108,12 +108,12 @@ class MufapDataController extends Controller
         $allFetchData = [
             'amcs'       => Amc::orderBy('name')->get(),
             'sectors'    => Sector::orderBy('name')->get(),
-            'fundsList'  => MutualFunds::orderBy('name')->get(),
+            'fundsList'  => MutualFund::orderBy('name')->get(),
             'categories' => Category::orderBy('name')->get(),
         ];
 
         // 2. Build the query with relationships
-        $fundsQuery = Mf_Daily_Stats::with(['amc', 'mutualFund', 'sector', 'trustee', 'category']);
+        $fundsQuery = MfDailyStat::with(['amc', 'mutualFund', 'sector', 'trustee', 'category']);
 
         // 3. Apply filters if provided
         if ($request->filled('category')) $fundsQuery->where('category_id', $request->category);

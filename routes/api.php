@@ -2,8 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\MufapApiController;
-use App\Http\Controllers\Api\MufapDateRangeController;
+use App\Http\Controllers\Api\MfApiController;
+use App\Http\Controllers\Api\MfhistoryController;
+
 
 // Public Routes
 
@@ -11,11 +12,11 @@ Route::post('login', [AuthController::class, 'login']); // User login
 Route::post('/logout', [AuthController::class, 'logout']); // Logout user
 
 // MUFAP Data
-Route::get('/mutualfunds', [MufapApiController::class, 'index']); // All funds
+Route::get('/mutualfunds', [MfApiController::class, 'index']); // All funds
 
 // Extra APIs for Filtering / Searching
-Route::get('mutualfunds/categories', [MufapApiController::class, 'getAllCategories']);
-Route::get('mutualfunds/sectors', [MufapApiController::class, 'getAllSectors']);
-Route::get('mutualfunds/amcs', [MufapApiController::class, 'getAllAMCs']);
-Route::get('mutualfunds/{id}', [MufapApiController::class, 'show']); // <-- this goes LAST
-Route::get('/mutualfunds/{id}/history', [MufapDateRangeController::class, 'getDateRange']); // Fund history by ID
+Route::get('mutualfunds/categories', [MfApiController::class, 'getAllCategories']);
+Route::get('mutualfunds/sectors', [MfApiController::class, 'getAllSectors']);
+Route::get('mutualfunds/amcs', [MfApiController::class, 'getAllAMCs']);
+Route::get('mutualfunds/{id}', [MfApiController::class, 'show']); // <-- this goes LAST
+Route::get('/mutualfunds/{id}/history', [MfhistoryController::class, 'gethistory']); // Fund history by ID

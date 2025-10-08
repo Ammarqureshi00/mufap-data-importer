@@ -11,11 +11,11 @@ class Amc extends Model
 
     public function mutualFunds()
     {
-        return $this->hasMany(MutualFunds::class, 'amc_id');
+        return $this->hasMany(MutualFund::class, 'amc_id');
     }
 
     public function mfDailyStats()
     {
-        return $this->hasMany(Mf_Daily_Stats::class, 'amc_id');
+        return $this->hasMany(MfDailyStat::class, 'amc_id');
     }
 }
