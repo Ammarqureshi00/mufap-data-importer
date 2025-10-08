@@ -132,8 +132,7 @@ class MufapApiController extends Controller
             ->select('id', 'name')
             ->orderBy('name', 'ASC')
             ->get();
-
-
+        // dd($data->toArray());
         return response()->json([
             'status' => 'success',
             'data' => $data
@@ -149,7 +148,7 @@ class MufapApiController extends Controller
             ->select('id', 'name')
             ->orderBy('name', 'ASC')
             ->get();
-        // dd($data->toArray());
+
         return response()->json([
             'status' => 'success',
             'data' => $data

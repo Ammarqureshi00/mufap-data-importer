@@ -64,7 +64,9 @@ class MufapDataController extends Controller
 
                 // Skip duplicates
                 if (Mf_Daily_Stats::where('mutual_fund_id', $mutualFund->id)
-                    ->where('validity_date', $validity_date)
+                    ->where('category_id', $category?->id)
+                    ->where('validity_date', $validity_date ?? null)
+                    ->where('nav', $nav ?? null)
                     ->exists()
                 ) {
                     $duplicates++;

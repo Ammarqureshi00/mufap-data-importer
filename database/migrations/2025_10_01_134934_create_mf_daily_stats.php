@@ -25,7 +25,8 @@ return new class extends Migration
             $table->foreignId('trustee_id')->nullable()->constrained('trustees')->onDelete('cascade');
             $table->timestamps();
 
-            $table->unique(['mutual_fund_id', 'validity_date'], 'fund_date_unique');
+            $table->unique(['mutual_fund_id', 'validity_date', 'category_id'], 'fund_date_category_unique');
+
             $table->index('amc_id');
             $table->index('category');
             $table->index('validity_date');
