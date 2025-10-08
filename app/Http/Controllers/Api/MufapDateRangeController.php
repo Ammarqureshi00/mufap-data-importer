@@ -10,7 +10,7 @@ class MufapDateRangeController extends Controller
 {
     public function getDateRange($id, Request $request)
     {
-        //  Validate query parameters
+        // Validate input
         $request->validate([
             'start_date' => 'required|date',
             'end_date'   => 'required|date|after_or_equal:start_date',
@@ -19,24 +19,31 @@ class MufapDateRangeController extends Controller
         $startDate = $request->input('start_date');
         $endDate   = $request->input('end_date');
 
-        //  Fetch data from mf_daily_stats table
+        // Fetch data for date range
         $dateRangeData = Mf_Daily_Stats::where('mutual_fund_id', $id)
             ->whereBetween('validity_date', [$startDate, $endDate])
             ->orderBy('validity_date', 'asc')
             ->get(['validity_date as date', 'nav', 'offer', 'repurchase', 'market']);
 
-        //  If no data found
+        // Check if data exists
         if ($dateRangeData->isEmpty()) {
             return response()->json([
+                'title'   => 'No Data Found',
                 'status'  => 'error',
                 'message' => 'No data found for the given date range.'
             ], 404);
         }
 
-        // Return success response
+        // Calculate total days between range
+        $totalDays = \Carbon\Carbon::parse($startDate)->diffInDays(\Carbon\Carbon::parse($endDate)) + 1;
+
+        // Return formatted response
         return response()->json([
-            'status' => 'success',
-            'data'   => $dateRangeData
+            'status'      => 'success',
+            'start_date'  => $startDate,
+            'end_date'    => $endDate,
+            'total_days'  => $totalDays,
+            'data'        => $dateRangeData,
         ], 200);
     }
 }
