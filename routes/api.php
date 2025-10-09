@@ -13,7 +13,7 @@ Route::post('/logout', [AuthController::class, 'logout']); // Logout user
 
 // MUFAP Data
 Route::get('/mutualfunds', [MfApiController::class, 'index']); // All funds
-Route::get('/mufap-data/{date}', [MfScrapingController::class, 'scrapeDaily']);
+Route::get('/mf-scrape-data/{date}', [MfScrapingController::class, 'scrapeDaily']);
 
 
 // Extra APIs for Filtering / Searching
