@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\MfApiController;
 use App\Http\Controllers\Api\MfhistoryController;
-
+use App\Http\Controllers\MfScrapingController;
 
 // Public Routes
 
@@ -13,6 +13,8 @@ Route::post('/logout', [AuthController::class, 'logout']); // Logout user
 
 // MUFAP Data
 Route::get('/mutualfunds', [MfApiController::class, 'index']); // All funds
+Route::get('/mufap-data/{date}', [MfScrapingController::class, 'scrapeDaily']);
+
 
 // Extra APIs for Filtering / Searching
 Route::get('mutualfunds/categories', [MfApiController::class, 'getAllCategories']);
