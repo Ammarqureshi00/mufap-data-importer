@@ -20,6 +20,16 @@ class MfScrapingController extends Controller
             return response()->json(['success' => false, 'message' => 'Invalid date format. Use YYYY-MM-DD'], 422);
         }
 
+        //  Check if date already exists in DB
+        if (MfDailyStat::whereDate('validity_date', $date)->exists()) {
+            return response()->json([
+                'success' => false,
+                'status' => 'skipped',
+                'message' => "Data for {$date} already exists in the database. Skipping scrape.",
+                'date' => $date
+            ], 200);
+        }
+
         $url = "https://mufap.com.pk/Industry/IndustryStatDaily?tab=3&AMCId=null&fundId=null&datefrom={$date}&datetill={$date}";
 
         // Step 1: Fetch HTML
@@ -82,7 +92,7 @@ class MfScrapingController extends Controller
                     continue; // skip incomplete rows
                 }
 
-                // Normalized saves
+                // Normalize & Save related models
                 $amc = Amc::firstOrCreate(['name' => $record['amc']]);
                 $sector = Sector::firstOrCreate(['name' => $record['sector']]);
                 $category = Category::firstOrCreate(['name' => $record['category']]);
@@ -92,7 +102,7 @@ class MfScrapingController extends Controller
                     'amc_id' => $amc->id
                 ]);
 
-                // Check duplicates
+                // Check duplicates (per fund)
                 $exists = MfDailyStat::where('mutual_fund_id', $fund->id)
                     ->where('validity_date', $record['validity_date'])
                     ->exists();
@@ -102,7 +112,7 @@ class MfScrapingController extends Controller
                     continue;
                 }
 
-                // Save
+                // Save record
                 MfDailyStat::create([
                     'mutual_fund_id' => $fund->id,
                     'amc_id' => $amc->id,
