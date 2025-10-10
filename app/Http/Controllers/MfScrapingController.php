@@ -10,66 +10,84 @@ use App\Models\MutualFund;
 use App\Models\MfDailyStat;
 use App\Models\Sector;
 use App\Models\Trustee;
+use Carbon\Carbon;
 
 class MfScrapingController extends Controller
 {
-    public function scrapeDaily($date)
+    /**
+     * Scrape MUFAP data for a date range (and optional mutual fund)
+     */
+    public function scrapeRange(Request $request)
     {
-        // Validate date format
-        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
-            return response()->json(['success' => false, 'message' => 'Invalid date format. Use YYYY-MM-DD'], 422);
-        }
+        //  Validate request
+        $request->validate([
+            'date_from' => 'required|date_format:Y-m-d',
+            'date_to' => 'required|date_format:Y-m-d|after_or_equal:date_from',
+            'mf_id' => 'nullable|integer|exists:mutual_funds,id',,
+        ]);
 
-        //  Check if date already exists in DB
-        if (MfDailyStat::whereDate('validity_date', $date)->exists()) {
-            return response()->json([
-                'success' => false,
-                'status' => 'skipped',
-                'message' => "Data for {$date} already exists in the database. Skipping scrape.",
-                'date' => $date
-            ], 200);
-        }
+        $dateFrom = Carbon::parse($request->date_from);
+        $dateTo = Carbon::parse($request->date_to);
+        $mutualFundId = $request->mf_id ?? null;
 
-        $url = "https://mufap.com.pk/Industry/IndustryStatDaily?tab=3&AMCId=null&fundId=null&datefrom={$date}&datetill={$date}";
+        $totalSaved = 0;
+        $totalSkipped = 0;
+        $duplicateCount = 0;
+        $allDates = [];
 
-        // Step 1: Fetch HTML
-        $response = Http::withoutVerifying()->get($url);
-        if (!$response->ok() || empty($response->body())) {
-            return response()->json(['success' => false, 'message' => 'Failed to fetch MUFAP page or empty response.'], 500);
-        }
+        //  Loop through each date in range
+        for ($date = $dateFrom; $date->lte($dateTo); $date->addDay()) {
+            $formattedDate = $date->format('Y-m-d');
+            $allDates[] = $formattedDate;
 
-        $html = $response->body();
-
-        // Step 2: Parse HTML
-        libxml_use_internal_errors(true);
-        $dom = new \DOMDocument();
-        @$dom->loadHTML($html);
-        libxml_clear_errors();
-
-        $xpath = new \DOMXPath($dom);
-        $rows = $xpath->query('//tbody[contains(@class,"small")]/tr');
-
-        // Step 3: If no rows found, return validation error
-        if ($rows->length === 0) {
-            return response()->json([
-                'success' => false,
-                'message' => "No data available on MUFAP for date {$date}",
-                'url' => $url,
-            ], 404);
-        }
-
-        $saved = 0;
-        $duplicates = 0;
-
-        foreach ($rows as $row) {
-            $cols = [];
-            foreach ($row->childNodes as $cell) {
-                if ($cell->nodeName === 'td') {
-                    $cols[] = $cell;
-                }
+            //  Skip if data already exists
+            if (MfDailyStat::whereDate('validity_date', $formattedDate)->exists()) {
+                $totalSkipped++;
+                continue;
             }
 
-            if (count($cols) >= 14) {
+            //  Build MUFAP URL
+            $fundParam = $mutualFundId
+                ? MutualFund::find($mutualFundId)->id
+                : 'null';
+
+            $url = "https://mufap.com.pk/Industry/IndustryStatDaily";
+            $params = [
+                'tab' => 3,
+                'AMCId' => 'null',
+                'fundid' => $fundParam,
+                'datefrom' => $formattedDate,
+                'datetill' => $formattedDate,
+            ];
+            $response = Http::withoutVerifying()->get($url, $params);
+
+
+            if ($response->failed() || empty($response->body())) {
+                continue;
+            }
+
+            // 🧾 Parse HTML
+            libxml_use_internal_errors(true);
+            $dom = new \DOMDocument();
+            $dom->loadHTML($response->body());
+            libxml_clear_errors();
+
+            $xpath = new \DOMXPath($dom);
+            $rows = $xpath->query('//tbody[contains(@class,"small")]/tr');
+
+            if (!$rows || $rows->length === 0) {
+                continue;
+            }
+
+            foreach ($rows as $row) {
+                $cols = [];
+                foreach ($row->childNodes as $child) {
+                    if ($child instanceof \DOMElement && $child->tagName === 'td') {
+                        $cols[] = $child;
+                    }
+                }
+                if (count($cols) < 14) continue;
+
                 $record = [
                     'sector' => trim($cols[0]->textContent),
                     'amc' => trim($cols[1]->textContent),
@@ -87,75 +105,88 @@ class MfScrapingController extends Controller
                     'trustee' => trim($cols[13]->textContent),
                 ];
 
-                // Validate required fields
-                if (empty($record['fund_name']) || empty($record['amc']) || empty($record['nav'])) {
-                    continue; // skip incomplete rows
-                }
-
-                // Normalize & Save related models
+                //  Resolve references
                 $amc = Amc::firstOrCreate(['name' => $record['amc']]);
                 $sector = Sector::firstOrCreate(['name' => $record['sector']]);
                 $category = Category::firstOrCreate(['name' => $record['category']]);
                 $trustee = Trustee::firstOrCreate(['name' => $record['trustee']]);
-                $fund = MutualFund::firstOrCreate([
-                    'name' => $record['fund_name'],
-                    'amc_id' => $amc->id
-                ]);
 
-                // Check duplicates (per fund)
+                $fund = MutualFund::firstOrCreate(
+                    ['name' => $record['fund_name']],
+                    [
+                        'amc_id' => $amc->id,
+                        'sector_id' => $sector->id,
+                        'category_id' => $category->id,
+                        'trustee_id' => $trustee->id,
+                        'inception_date' => $record['inception_date'],
+                    ]
+                );
+
+                //  Check duplicate fund-date combo
                 $exists = MfDailyStat::where('mutual_fund_id', $fund->id)
                     ->where('validity_date', $record['validity_date'])
                     ->exists();
 
                 if ($exists) {
-                    $duplicates++;
+                    $duplicateCount++;
                     continue;
                 }
 
-                // Save record
+                // 💾 Save new record
                 MfDailyStat::create([
                     'mutual_fund_id' => $fund->id,
-                    'amc_id' => $amc->id,
-                    'sector_id' => $sector->id,
-                    'category_id' => $category->id,
-                    'trustee_id' => $trustee->id,
-                    'validity_date' => $record['validity_date'],
+                    'amc_id'         => $amc->id,
+                    'sector_id'      => $sector->id,
+                    'category_id'    => $category->id,
+                    'trustee_id'     => $trustee->id,
+                    'validity_date'  => $record['validity_date'],
                     'inception_date' => $record['inception_date'],
-                    'offer' => $record['offer'],
-                    'repurchase' => $record['repurchase'],
-                    'nav' => $record['nav'],
-                    'front_end' => $record['front_end'],
-                    'back_end' => $record['back_end'],
-                    'contingent' => $record['contingent'],
-                    'market' => $record['market'],
+                    'offer'          => $record['offer'],
+                    'repurchase'     => $record['repurchase'],
+                    'nav'            => $record['nav'],
+                    'front_end'      => $record['front_end'],
+                    'back_end'       => $record['back_end'],
+                    'contingent'     => $record['contingent'],
+                    'market'         => $record['market'],
                 ]);
 
-                $saved++;
+                $totalSaved++;
             }
         }
 
         return response()->json([
             'success' => true,
-            'message' => "Scraped and saved data for {$date}",
-            'total_saved' => $saved,
-            'duplicates' => $duplicates,
-            'url' => $url,
+            'message' => 'Scraping completed successfully.',
+            'date_range' => [
+                'from' => $dateFrom->format('Y-m-d'),
+                'to' => $dateTo->format('Y-m-d'),
+            ],
+            'mutual_fund_id' => $mutualFundId,
+            'total_saved' => $totalSaved,
+            'duplicates' => $duplicateCount,
+            'skipped_dates' => $totalSkipped,
+            'processed_dates' => $allDates,
         ]);
     }
 
-    private function parseDate($date)
+    //  Helper: parse date formats
+    private function parseDate($value)
     {
-        if (!$date) return null;
+        $value = trim($value);
+        if (!$value) return null;
+
         $formats = ['M d, Y', 'd-M-Y', 'Y-m-d'];
         foreach ($formats as $format) {
-            $parsed = \DateTime::createFromFormat($format, trim($date));
-            if ($parsed) return $parsed->format('Y-m-d');
+            $date = \DateTime::createFromFormat($format, $value);
+            if ($date) return $date->format('Y-m-d');
         }
         return null;
     }
 
+    //  Helper: parse decimals
     private function parseDecimal($value)
     {
-        return $value !== null && $value !== '' ? floatval(str_replace(',', '', $value)) : 0.0000;
+        $value = str_replace(',', '', trim($value));
+        return is_numeric($value) ? (float) $value : null;
     }
 }
